@@ -1,7 +1,7 @@
 
 # Wasserstein distributional robustness of neural networks
 
-This repository is the official implementation of *Wasserstein distributional robustness of neural networks*.
+This repository is the official implementation of *[Wasserstein distributional robustness of neural networks](https://arxiv.org/abs/2306.09844)*.
 
 
 ## Requirements
@@ -21,7 +21,7 @@ This repository is the official implementation of *Wasserstein distributional ro
 
 ## Evaluation on the clean dataset
 
-Calculate clean accuracy $A$, clean loss $V(0)$, conditional loss $W(0)$ on the misclassified images, and sensitivity Υ:
+Calculate clean accuracy $A$, clean loss $V(0)$, conditional loss $W(0)$ on the misclassified images, and sensitivity $\Upsilon$:
 
 ```sh
 python main_clean.py $1 $2 $3
@@ -55,7 +55,7 @@ Input:
 
 - `$3` -- loss_fn, "CE", "DLR", or "ReDLR".
 
-- `$4` -- attack budget. δ=`$4`/255 if $s=1$, δ=`$4`/16 if $s=2$.
+- `$4` -- attack budget. $\delta$=`$4`/255 if $s=1$, $\delta$=`$4`/16 if $s=2$.
 
 - `$5` -- attack type, "FGSM" or "PGD".
 
