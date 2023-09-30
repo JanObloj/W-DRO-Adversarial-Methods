@@ -1,7 +1,7 @@
 import torch
 from robust_utils import loss_grad, eval
-from data import get_cifar10_split
 
+from data import get_cifar10_split, get_cifar100_split
 EPS = 1e-8
 ITER = 50
 RATIO = 1.875
@@ -33,19 +33,22 @@ class Attacker:
         ratio=None,
         iter=None,
         loss_fn=None,
+        dataset=None,
         X=None,
         y=None,
     ):
-        if X == None:
-            self.X, self.y = get_cifar10_split()
-        if X is not None:
-            self.X, self.y = X, y
         self.q = q
         self.s = s
         self.delta = delta
         self.step_size = ratio * delta / iter
         self.iter = iter
         self.loss_fn = loss_fn
+        self.X = X
+        self.y = y
+        if dataset == "cifar10":
+            self.X, self.y = get_cifar10_split()
+        if dataset == "cifar100":
+            self.X, self.y = get_cifar100_split()
 
     def data_dist(self, X_1, X_2):
         """
@@ -152,8 +155,8 @@ class Attacker:
                 y=self.y.detach().cpu().clone(),
                 loss_fn=self.loss_fn,
             )
-            loss = torch.tensor(X_cur_eval["loss"])
-            acc = torch.tensor(X_cur_eval["acc"])
+            loss = X_cur_eval["loss"]
+            acc = X_cur_eval["acc"]
             if verbose:
                 print(f"step_{i}:{acc}")
             if acc_min > acc:
@@ -162,18 +165,34 @@ class Attacker:
             if loss_max < loss:
                 loss_max = loss
         if verbose:
-            return {
-                "X_adv": X_adv,
-                "acc_min": acc_min.item(),
-                "loss_max": loss_max.item(),
-            }
+            return {"X_adv": X_adv, "acc_min": acc_min, "loss_max": loss_max}
         else:
-            return {"acc_min": acc_min.item(), "loss_max": loss_max.item()}
+            return {"acc_min": acc_min, "loss_max": loss_max}
 
 
-def wfgsm(q, s, delta, loss_fn, X=None, y=None):
-    return Attacker(q=q, s=s, delta=delta, ratio=1, iter=1, loss_fn=loss_fn)
+def wfgsm(q, s, delta, loss_fn, dataset=None, X=None, y=None):
+    return Attacker(
+        q=q,
+        s=s,
+        delta=delta,
+        ratio=1,
+        iter=1,
+        loss_fn=loss_fn,
+        dataset=dataset,
+        X=X,
+        y=y,
+    )
 
 
-def wpgd(q, s, delta, loss_fn, X=None, y=None):
-    return Attacker(q=q, s=s, delta=delta, ratio=RATIO, iter=ITER, loss_fn=loss_fn)
+def wpgd(q, s, delta, loss_fn, dataset=None, X=None, y=None):
+    return Attacker(
+        q=q,
+        s=s,
+        delta=delta,
+        ratio=RATIO,
+        iter=ITER,
+        loss_fn=loss_fn,
+        dataset=dataset,
+        X=X,
+        y=y,
+    )

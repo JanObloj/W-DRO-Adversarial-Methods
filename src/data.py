@@ -4,7 +4,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 torch.manual_seed(42)
-BATCH_SIZE = 128
+BATCH_SIZE = 32 
 
 
 class Data:
@@ -43,19 +43,23 @@ class Data:
             return self.testloader
 
 
-testset = torchvision.datasets.CIFAR10(
-    root="./data", train=False, download=True, transform=transforms.ToTensor()
-)
-trainset = torchvision.datasets.CIFAR10(
-    root="./data", train=True, download=True, transform=transforms.ToTensor()
-)
-
-cifar10 = Data(trainset, testset)
-
-
 def get_cifar10_split(train=False):
+    testset = torchvision.datasets.CIFAR10(
+        root="./data", train=False, download=True, transform=transforms.ToTensor()
+    )
+    trainset = torchvision.datasets.CIFAR10(
+        root="./data", train=True, download=True, transform=transforms.ToTensor()
+    )
+    cifar10 = Data(trainset, testset)
     return cifar10.getSplit(train=train)
 
 
-def get_cifar10_loader(train=False):
-    return cifar10.getLoader(train=train)
+def get_cifar100_split(train=False):
+    testset = torchvision.datasets.CIFAR100(
+        root="./data", train=False, download=True, transform=transforms.ToTensor()
+    )
+    trainset = torchvision.datasets.CIFAR100(
+        root="./data", train=True, download=True, transform=transforms.ToTensor()
+    )
+    cifar100 = Data(trainset, testset)
+    return cifar100.getSplit(train=train)
