@@ -1,9 +1,8 @@
 import torch
 from robust_utils import loss_grad, eval
 
-from data import get_cifar10_split, get_cifar100_split
 EPS = 1e-8
-ITER = 50
+ITR = 50
 RATIO = 1.875
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -17,12 +16,11 @@ class Attacker:
     - q: the conjugate of p
     - s: the conjugate of r
     - delta: the attack budget
-    - iter: the number of iterations
-    - step_size: step size is given by ratio*delta/iter
+    - itr: the number of iterations
+    - step_size: step size is given by ratio*delta/itr
     - loss_fn: the loss function used to train the network
     - X, y: the dataset to be attacked
     Formula: x_{t+1}=proj(x_{t}+step_size*adv_dir)
-
     """
 
     def __init__(
@@ -31,24 +29,19 @@ class Attacker:
         s=None,
         delta=None,
         ratio=None,
-        iter=None,
+        itr=None,
         loss_fn=None,
-        dataset=None,
         X=None,
         y=None,
     ):
         self.q = q
         self.s = s
         self.delta = delta
-        self.step_size = ratio * delta / iter
-        self.iter = iter
+        self.step_size = ratio * delta / itr
+        self.itr = itr
         self.loss_fn = loss_fn
         self.X = X
         self.y = y
-        if dataset == "cifar10":
-            self.X, self.y = get_cifar10_split()
-        if dataset == "cifar100":
-            self.X, self.y = get_cifar100_split()
 
     def data_dist(self, X_1, X_2):
         """
@@ -101,7 +94,6 @@ class Attacker:
     def adv_dir(self, X_cur, network):
         """
         get the advesarial direction at X_cur
-
         the output length is normalized to "1"
         """
         grad = loss_grad(
@@ -144,7 +136,7 @@ class Attacker:
         acc_min = 1.0
         loss_max = -1.0
 
-        for i in range(self.iter):
+        for i in range(self.itr):
             # update X_adv
             X_cur += self.step_size * self.adv_dir(X_cur, network)
             X_cur = self.proj(X_cur).clamp(0, 1)
@@ -170,29 +162,27 @@ class Attacker:
             return {"acc_min": acc_min, "loss_max": loss_max}
 
 
-def wfgsm(q, s, delta, loss_fn, dataset=None, X=None, y=None):
+def wfgsm(q, s, delta, loss_fn, X=None, y=None):
     return Attacker(
         q=q,
         s=s,
         delta=delta,
         ratio=1,
-        iter=1,
+        itr=1,
         loss_fn=loss_fn,
-        dataset=dataset,
         X=X,
         y=y,
     )
 
 
-def wpgd(q, s, delta, loss_fn, dataset=None, X=None, y=None):
+def wpgd(q, s, delta, loss_fn, X=None, y=None):
     return Attacker(
         q=q,
         s=s,
         delta=delta,
         ratio=RATIO,
-        iter=ITER,
+        itr=ITR,
         loss_fn=loss_fn,
-        dataset=dataset,
         X=X,
         y=y,
     )

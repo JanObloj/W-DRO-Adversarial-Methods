@@ -4,7 +4,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 torch.manual_seed(42)
-BATCH_SIZE = 32 
+BATCH_SIZE = 32
 
 
 class Data:

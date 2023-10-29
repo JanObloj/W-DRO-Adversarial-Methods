@@ -1,7 +1,6 @@
 import torch
 from torch.utils.data import TensorDataset, DataLoader
-from data import get_cifar10_split, get_cifar100_split, BATCH_SIZE
-
+from data import BATCH_SIZE
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -14,7 +13,7 @@ def loss_grad(network, X=None, y=None, loss_fn=None):
     grads: a tensor of gradient of each data point, shape: dataset_size * 3 * 32 * 32
 
     """
-   
+
     loader = DataLoader(
         TensorDataset(X, y),
         batch_size=BATCH_SIZE,
@@ -45,7 +44,7 @@ def comp_upsilon(network, X=None, y=None, loss_fn=None, q=1, s=1):
     return grad_norm.pow(q).mean().pow(1 / q).item()
 
 
-def eval(network,  X=None, y=None, loss_fn=None, cond=False):
+def eval(network, X=None, y=None, loss_fn=None, cond=False):
     """
     Calculate the loss and accuracy on a given dataset.
 
@@ -54,7 +53,6 @@ def eval(network,  X=None, y=None, loss_fn=None, cond=False):
     acc: accuracy of network on (X,y)
     loss_cond: conditional loss of network on misclassifed images in (X,y) if cond=True
     """
-    
 
     loader = DataLoader(
         TensorDataset(X, y),
